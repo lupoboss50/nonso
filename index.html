@@ -38,11 +38,17 @@
       --final-images-text-color: #F5F5F5; /* Testo chiaro su sfondo scuro */
       --final-images-title-color: #A799FF; /* Colore per il nuovo titolo */
 
-      /* Colori Fase 6 (Lettera) */
+      /* Colori Fase 6 (Lettera del Corvo - default) */
       --letter-bg-color: #FFB6C1; /* Rosa pastello per il body (come bordo esterno) */
       --letter-text-color: #333; /* Testo scuro per contrasto */
       --letter-container-bg: #FFD1DC; /* Rosa più chiaro per lo sfondo interno della lettera (parte "blu") */
       --letter-border-color: #FFB6C1; /* Bordo della sezione della lettera, colore leggermente più chiaro */
+
+      /* NUOVI COLORI FASE 6 (Lettera dell'Ermellino) - Ermellino Invernale con Rosé */
+      --ermellino-letter-bg-color: #F8F8FF; /* Floral White */
+      --ermellino-letter-container-bg: #FFF0F5; /* Lavender Blush */
+      --ermellino-letter-border-color: #FFC0CB; /* Pink */
+
 
       --transition-speed: 0.8s;
     }
@@ -135,7 +141,7 @@
         position: relative; /* Potrebbe servire per eventuali elementi posizionati */
     }
 
-    /* Stili per la Fase 6 (Lettera) */
+    /* Stili per la Fase 6 (Lettera del Corvo - default) */
     body.phase-6 {
         background-color: var(--letter-bg-color); /* Rosa pastello per il body (come bordo esterno) */
         color: var(--letter-text-color); /* Testo scuro */
@@ -157,6 +163,21 @@
         border: 2px solid var(--letter-border-color); /* Bordo della sezione della lettera */
         position: relative; /* Per posizionare il pulsante di copia */
     }
+
+    /* NUOVI STILI PER LA LETTERA DELL'ERMELLINO (Sovrascrivono i precedenti quando la classe è attiva) */
+    body.phase-6.letter-ermellino-active {
+        background-color: var(--ermellino-letter-bg-color);
+    }
+    #app.phase-6.letter-ermellino-active {
+        background-color: var(--ermellino-letter-container-bg);
+        border: 2px solid var(--ermellino-letter-border-color);
+    }
+    /* Colore specifico per titolo e firma della lettera ermellino */
+    #app.phase-6.letter-ermellino-active #letter-section h2,
+    #app.phase-6.letter-ermellino-active #letter-section em {
+        color: #E9967A; /* Dark Salmon per titolo e firma ermellino */
+    }
+
 
     .hidden {
       display: none !important;
@@ -354,16 +375,24 @@
         text-align: center;
     }
 
-    /* Contenitore per le due immagini finali */
+    /* Contenitore per le tre immagini finali (flex-direction column per metterle in verticale) */
     .final-image-container {
         display: flex;
-        flex-direction: row; /* Disposizione orizzontale */
-        align-items: center;
-        gap: 20px; /* Spazio tra le due immagini */
+        flex-direction: column; /* Imposta la direzione in colonna */
+        align-items: center; /* Centra orizzontalmente gli elementi */
+        gap: 20px; /* Spazio tra le immagini */
         margin-top: 20px; /* Spazio tra il titolo e le immagini */
-        flex-wrap: wrap; /* Permette il wrapping su schermi piccoli */
+        flex-wrap: wrap; /* Permette il wrapping su schermi piccoli (anche se qui è column) */
         justify-content: center;
     }
+
+    /* Per schermi più grandi, tornare alla disposizione orizzontale */
+    @media (min-width: 768px) {
+        .final-image-container {
+            flex-direction: row; /* Torna alla disposizione orizzontale */
+        }
+    }
+
 
     .final-image-item {
         width: 160px; /* Dimensione delle immagini finali */
@@ -508,8 +537,9 @@
             right: 15px; /* Adattato per schermi più piccoli */
         }
 
+        /* Su schermi piccoli, le immagini finali saranno sempre in colonna */
         .final-image-container {
-            flex-direction: column; /* Torna in colonna su schermi molto piccoli se preferisci */
+            flex-direction: column;
             gap: 20px;
         }
 
@@ -533,9 +563,11 @@
     let userAnswers = []; // Array per memorizzare le risposte dell'utente (testo)
     let userEffectPhrases = []; // Array per memorizzare le frasi d'effetto scelte
     let currentQuestionIndex = 0;
+    // Variabile per tenere traccia di quale lettera è attualmente visualizzata per la copia
+    let currentLetterContent = '';
 
-    // Contenuto della lettera, ora una variabile globale per facilitare il richiamo
-    const loveLetterContent = `
+    // Contenuto della lettera del corvo
+    const loveLetterContentCorvo = `
       <h2>Il corvo ti ha mandato la lettera</h2>
 
       <p>Tu non sei sola.
@@ -567,6 +599,45 @@
 
       <p><em>Il tuo rimbambito 💜</em></p>
     `;
+
+    // Nuova lettera per l'ermellino
+    const loveLetterContentErmellino = `
+      <h2>L’ermellino ti ha portato qualcosa</h2>
+
+      <p>A volte non parlo.
+      Non perché non sento,
+      ma perché non trovo il modo giusto.
+      E allora ci ho messo lui –
+      l’ermellino bianco –
+      a portarti questa cosa che è mia,
+      ma è per te.</p>
+
+      <p>Tu non sei sola.
+      Anche quando non dici niente.
+      Anche quando sorridi per non far vedere che crolli.</p>
+
+      <p>Io ti vedo.
+      Nei silenzi lunghi, nei pensieri che tieni stretti.
+      Ti sento anche se non chiedi aiuto.
+      Anche se fai finta che non serva.</p>
+
+      <p>Forse non sono sempre bravo a dirtelo.
+      Forse non so darti il supporto giusto.
+      Ma tu lo sai: io ci sono.
+      E resto.</p>
+
+      <p>Resto anche quando stai male.
+      Resto anche se non parli.
+      Resto perché è quello che voglio fare.
+      Perché tu sei tanto, e io non voglio perderti nemmeno un po’.</p>
+
+      <p>Hai questo modo di essere bella anche quando ti nascondi.
+      E io, pure quando sembro distratto,
+      ti sto guardando dentro.</p>
+
+      <p><em>Il tuo rimbambito 💜</em></p>
+    `;
+
 
     const quizData = [
       {
@@ -774,54 +845,71 @@
     }
 
     function renderFinalImages() {
-        // Rimuovi il pulsante ➡️ quando passiamo a questa fase (non più necessario, dato che è ricreato)
-        // const nextButton = document.getElementById('next-images-button');
-        // if (nextButton) {
-        //     nextButton.remove(); // Non più necessario rimuoverlo manualmente, viene sovrascritto dall'innerHTML
-        // }
-
         app.innerHTML = `
             <div id="final-images-section">
                 <h2 id="final-images-title">Quello che è venuto fuori. E quello che voglio dirti</h2>
                 <div class="final-image-container">
-                    <img src="corvolettera.JPG" alt="Corvo con lettera" class="final-image-item" id="open-letter">
+                    <img src="corvolettera.JPG" alt="Corvo con lettera" class="final-image-item" id="open-letter-corvo">
                     <img src="corvo.JPG" alt="Corvo" class="final-image-item" id="share-corvo">
+                    <img src="ermellinoneve.jpg" alt="Ermellino sulla neve" class="final-image-item" id="open-letter-ermellino">
                 </div>
             </div>
         `;
-        body.className = 'phase-5'; // NUOVA CLASSE PER QUESTA FASE
-        app.className = 'phase-5'; // NUOVA CLASSE PER QUESTA FASE
+        body.className = 'phase-5';
+        app.className = 'phase-5';
+
+        // Assicurati di rimuovere eventuali classi di lettera attive quando si torna a questa fase
+        body.classList.remove('letter-ermellino-active');
+        app.classList.remove('letter-ermellino-active');
+
 
         // Listener per la condivisione WhatsApp (solo per corvo.JPG)
         document.getElementById('share-corvo').addEventListener('click', () => shareWhatsApp('corvo.JPG'));
-        // Listener per aprire la lettera (solo per corvolettera.JPG)
-        document.getElementById('open-letter').addEventListener('click', renderLetter);
+        // Listener per aprire la lettera del corvo
+        document.getElementById('open-letter-corvo').addEventListener('click', () => renderLetter('corvo'));
+        // Listener per aprire la lettera dell'ermellino
+        document.getElementById('open-letter-ermellino').addEventListener('click', () => renderLetter('ermellino'));
     }
 
-    function renderLetter() {
+    function renderLetter(letterType) {
+        let contentToDisplay = '';
+        if (letterType === 'corvo') {
+            contentToDisplay = loveLetterContentCorvo;
+            body.classList.remove('letter-ermellino-active'); // Rimuovi la classe ermellino se si apre il corvo
+            app.classList.remove('letter-ermellino-active');
+        } else if (letterType === 'ermellino') {
+            contentToDisplay = loveLetterContentErmellino;
+            body.classList.add('letter-ermellino-active'); // Aggiungi la classe ermellino
+            app.classList.add('letter-ermellino-active');
+        }
+
+        // Salva il contenuto attualmente visualizzato per la funzione di copia
+        currentLetterContent = contentToDisplay;
+
         app.innerHTML = `
             <div id="letter-section">
                 <button id="copy-letter-button" aria-label="Copia la poesia">
                     <i class="far fa-copy"></i>
                 </button>
-                ${loveLetterContent}
+                ${contentToDisplay}
                 <button id="close-letter-button">Chiudi la lettera</button>
             </div>
         `;
-        body.className = 'phase-6'; // NUOVA CLASSE PER LA FASE DELLA LETTERA
-        app.className = 'phase-6'; // NUOVA CLASSE PER LA FASE DELLA LETTERA
+        body.className = 'phase-6';
+        app.className = 'phase-6'; // Applica la classe base per la fase 6
 
-        document.getElementById('close-letter-button').addEventListener('click', renderFinalImages); // Torna alla schermata delle immagini finali
+        document.getElementById('close-letter-button').addEventListener('click', renderFinalImages);
+        // La funzione di copia ora non ha bisogno di un argomento, usa la variabile globale
         document.getElementById('copy-letter-button').addEventListener('click', copyLetterToClipboard);
     }
 
-    // Funzione per copiare la lettera negli appunti
+    // Funzione per copiare la lettera negli appunti, usa la variabile globale
     function copyLetterToClipboard() {
         // Creiamo un elemento temporaneo per copiare il testo pulito
         const tempTextArea = document.createElement('textarea');
         // Usiamo un div temporaneo per rimuovere tutti i tag HTML mantenendo le interruzioni di riga
         const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = loveLetterContent;
+        tempDiv.innerHTML = currentLetterContent; // Usa il contenuto della lettera attualmente visualizzata
         tempTextArea.value = tempDiv.innerText; // .innerText mantiene le interruzioni di riga e rimuove i tag
 
         document.body.appendChild(tempTextArea);
